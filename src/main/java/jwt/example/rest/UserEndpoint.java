@@ -1,9 +1,11 @@
 package jwt.example.rest;
 
 import jwt.example.controller.UserService;
+import jwt.example.dataTransferObject.UserDto;
 import jwt.example.model.UserDetailsRequestModel;
 import jwt.example.model.UserDetailsResponseModel;
 import jwt.example.model.UserEntity;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +25,19 @@ public class UserEndpoint {
         return userService.getUserById(id);
     }
 
-    @PostMapping("/new-user")
-    public UserDetailsResponseModel addUser(@RequestBody UserDetailsRequestModel userDetails) {
-        return null;
+    @PostMapping("/users/add")
+    public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) {
+        UserDto userDto = new UserDto();
+        //copy requestbody into userDtoObject
+        BeanUtils.copyProperties(userDetails , userDto);
+
+        UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
+        //add remaining fields in userDtoObject and copy it to UserEntity in the method createUser
+        UserDto createdUser = userService.createUser(userDto);
+        //copy the created user into an return value for client
+        BeanUtils.copyProperties(createdUser, returnValue);
+        System.out.println("Added UserEntity");
+        return returnValue;
     }
 
     @PutMapping("/update/{id}")

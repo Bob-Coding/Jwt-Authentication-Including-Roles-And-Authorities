@@ -1,6 +1,8 @@
 package jwt.example.controller;
 
+import jwt.example.dataTransferObject.UserDto;
 import jwt.example.model.UserEntity;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +10,7 @@ import javax.transaction.Transactional;
 
 @Service
 @Transactional
-public class UserService {
+public class UserService implements UserServiceInterface{
     @Autowired
     UserRepository userRepository;
 
@@ -22,9 +24,23 @@ public class UserService {
         return userRepository.findById(id).get();
     }
 
-    public UserEntity addUser(UserEntity newUser) {
-        System.out.println("You Added A New User");
-        return userRepository.save(newUser);
+    @Override
+    public UserDto createUser(UserDto user) {
+        UserEntity userEntity = new UserEntity();
+        //copy UserDtoObject fields into UserEntity
+        BeanUtils.copyProperties(user, userEntity);
+
+        //will add implementation for random userId and Bcrypt later
+        //add missing fields from UserDto manual into UserEntity
+        userEntity.setUserId("TestUserId");
+        userEntity.setEncryptedPassword("TestPassword");
+        //store created UserEntity in Database
+        UserEntity storedUserDetails = userRepository.save(userEntity);
+
+        UserDto returnValue = new UserDto();
+        BeanUtils.copyProperties(storedUserDetails, returnValue);
+
+        return returnValue;
     }
 
     public String deleteUserById(long id) {
