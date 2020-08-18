@@ -6,5 +6,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface UserRepository extends CrudRepository<UserEntity, Long>{
-
 }

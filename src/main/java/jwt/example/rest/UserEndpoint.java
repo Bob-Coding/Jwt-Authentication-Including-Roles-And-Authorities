@@ -1,6 +1,8 @@
 package jwt.example.rest;
 
 import jwt.example.controller.UserService;
+import jwt.example.model.UserDetailsRequestModel;
+import jwt.example.model.UserDetailsResponseModel;
 import jwt.example.model.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +23,9 @@ public class UserEndpoint {
         return userService.getUserById(id);
     }
 
-    @PostMapping("/register")
-    public UserEntity addUser(@RequestBody UserEntity newUser) {
-        return userService.addUser(newUser);
+    @PostMapping("/new-user")
+    public UserDetailsResponseModel addUser(@RequestBody UserDetailsRequestModel userDetails) {
+        return null;
     }
 
     @PutMapping("/update/{id}")
