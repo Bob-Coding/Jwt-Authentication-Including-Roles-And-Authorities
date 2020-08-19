@@ -7,6 +7,7 @@ import jwt.example.model.UserDetailsResponseModel;
 import jwt.example.model.UserEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,9 +21,15 @@ public class UserEndpoint {
     public Iterable <UserEntity> getAllUsers() {
         return userService.getAllUsers();
     }
+
     @GetMapping("/users/{id}")
-    public UserEntity getUserById(@PathVariable(value = "id")long id) {
-        return userService.getUserById(id);
+    public UserDetailsResponseModel getUserByUserId(@PathVariable(value = "id")String id) {
+        UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
+
+        UserDto userDto = userService.getUserByUserId(id);
+        BeanUtils.copyProperties(userDto, returnValue);
+
+        return returnValue;
     }
 
     @PostMapping("/users/add")

@@ -4,6 +4,7 @@ import jwt.example.dataTransferObject.UserDto;
 import jwt.example.model.UserEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -19,9 +20,16 @@ public class UserService implements UserServiceInterface{
         return userRepository.findAll();
     }
 
-    public UserEntity getUserById(long id) {
-        System.out.println("You Requested User with Id: "+ id);
-        return userRepository.findById(id).get();
+    @Override
+    public UserDto getUserByUserId(String userId) {
+        UserDto returnValue = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(userId);
+        }
+        BeanUtils.copyProperties(userEntity, returnValue);
+
+        return returnValue;
     }
 
     @Override
