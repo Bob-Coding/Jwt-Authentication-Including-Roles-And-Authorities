@@ -24,23 +24,6 @@ public class UserService implements UserServiceInterface{
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public Iterable<UserEntity> getAllUsers() {
-        System.out.println("You Requested All Users");
-        return userRepository.findAll();
-    }
-
-    @Override
-    public UserDto getUserByUserId(String userId) {
-        UserDto returnValue = new UserDto();
-        UserEntity userEntity = userRepository.findByUserId(userId);
-        if (userEntity == null) {
-            throw new UsernameNotFoundException(userId);
-        }
-        BeanUtils.copyProperties(userEntity, returnValue);
-
-        return returnValue;
-    }
-
     @Override
     public UserDto createUser(UserDto user) {
 
@@ -60,10 +43,36 @@ public class UserService implements UserServiceInterface{
     }
 
     @Override
+    public UserDto getUser(String email) {
+        UserEntity userEntity = userRepository.findByEmail(email);
+        if (userEntity == null) throw new UsernameNotFoundException(email);
+        UserDto returnValue = new UserDto();
+        BeanUtils.copyProperties(userEntity, returnValue);
+        return returnValue;
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(email);
         if (userEntity == null) throw new UsernameNotFoundException(email);
         return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+    }
+
+    @Override
+    public UserDto getUserByUserId(String userId) {
+        UserDto returnValue = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(userId);
+        }
+        BeanUtils.copyProperties(userEntity, returnValue);
+
+        return returnValue;
+    }
+
+    public Iterable<UserEntity> getAllUsers() {
+        System.out.println("You Requested All Users");
+        return userRepository.findAll();
     }
 
     public String deleteUserById(long id) {

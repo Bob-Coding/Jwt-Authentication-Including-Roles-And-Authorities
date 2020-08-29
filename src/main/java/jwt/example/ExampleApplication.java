@@ -17,4 +17,9 @@ public class ExampleApplication {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public ExampleApplicationContext exampleApplicationContext() {
+        return new ExampleApplicationContext();
+    }
 }
