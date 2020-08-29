@@ -7,7 +7,10 @@ import jwt.example.userDto.UserDetailsResponseModel;
 import jwt.example.model.UserEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.awt.*;
 
 
 @RestController
@@ -24,23 +27,21 @@ public class UserEndpoint {
     @GetMapping("/users/{id}")
     public UserDetailsResponseModel getUserByUserId(@PathVariable(value = "id")String id) {
         UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
-
         UserDto userDto = userService.getUserByUserId(id);
         BeanUtils.copyProperties(userDto, returnValue);
-
         return returnValue;
     }
 
-    @PostMapping("/users")
+    //Example for taking xml/json as a request(consumes) and to respond in xml or json, first value is default( in this example json )
+    //Add Maven dependency Jackson Dataformat XML and add header for sending xml 'Content-Type application/xml' And 'Accept application/xml' for receiving back xml
+    @PostMapping(value = "/users",
+            consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) {
         UserDto userDto = new UserDto();
-        //copy requestbody into userDtoObject
         BeanUtils.copyProperties(userDetails , userDto);
-
         UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
-        //add remaining fields in userDtoObject and copy it to UserEntity in the method createUser
         UserDto createdUser = userService.createUser(userDto);
-        //copy the created user into an return value for client
         BeanUtils.copyProperties(createdUser, returnValue);
         System.out.println("Added UserEntity");
         return returnValue;
