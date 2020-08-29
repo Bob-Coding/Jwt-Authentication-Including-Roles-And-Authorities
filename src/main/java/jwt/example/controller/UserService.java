@@ -1,10 +1,12 @@
 package jwt.example.controller;
 
-import jwt.example.dataTransferObject.UserDto;
+import jwt.example.userDto.UserDto;
 import jwt.example.model.UserEntity;
+import jwt.example.userDto.Utils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -14,6 +16,10 @@ import javax.transaction.Transactional;
 public class UserService implements UserServiceInterface{
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    Utils utils;
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public Iterable<UserEntity> getAllUsers() {
         System.out.println("You Requested All Users");
@@ -34,20 +40,19 @@ public class UserService implements UserServiceInterface{
 
     @Override
     public UserDto createUser(UserDto user) {
+
+        if(userRepository.findByEmail(user.getEmail()) != null) throw new RuntimeException("Record already exists");
         UserEntity userEntity = new UserEntity();
-        //copy UserDtoObject fields into UserEntity
         BeanUtils.copyProperties(user, userEntity);
 
-        //will add implementation for random userId and Bcrypt later
-        //add missing fields from UserDto manual into UserEntity
-        userEntity.setUserId("TestUserId");
-        userEntity.setEncryptedPassword("TestPassword");
+        String publicUserId = utils.generateUserId(25);
+        userEntity.setUserId(publicUserId);
+        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         //store created UserEntity in Database
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
         UserDto returnValue = new UserDto();
         BeanUtils.copyProperties(storedUserDetails, returnValue);
-
         return returnValue;
     }
 
@@ -60,20 +65,15 @@ public class UserService implements UserServiceInterface{
     public UserEntity updateUser(long id, UserEntity userInput) {
         System.out.println("Updating UserId: "+ id);
         UserEntity user = userRepository.findById(id).get();
-
-        if (userInput.getFirstName() != null && userInput.getFirstName() !="") {
+        if (userInput.getFirstName() != null && userInput.getFirstName() !="")
             user.setFirstName(userInput.getFirstName());
-        }
-        if (userInput.getLastName() != null && userInput.getLastName() !="") {
+        if (userInput.getLastName() != null && userInput.getLastName() !="")
             user.setLastName(userInput.getLastName());
-        }
-        if (userInput.getEmail() != null && userInput.getEmail() !="") {
+        if (userInput.getEmail() != null && userInput.getEmail() !="")
             user.setEmail(userInput.getEmail());
-        }
-        if (userInput.getEncryptedPassword() != null && userInput.getEncryptedPassword() !="" || userInput.getEncryptedPassword() != null) {
+        if (userInput.getEncryptedPassword() != null && userInput.getEncryptedPassword() !="")
             user.setEncryptedPassword(userInput.getEncryptedPassword());
             //cant change password(for now)
-        }
         return userRepository.save(user);
     }
 }

@@ -1,4 +1,4 @@
-package jwt.example.dataTransferObject;
+package jwt.example.userDto;
 
 import java.io.Serializable;
 

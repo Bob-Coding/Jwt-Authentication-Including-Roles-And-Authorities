@@ -1,6 +1,6 @@
 package jwt.example.controller;
 
-import jwt.example.dataTransferObject.UserDto;
+import jwt.example.userDto.UserDto;
 
 public interface UserServiceInterface {
     UserDto createUser(UserDto user);

@@ -1,13 +1,12 @@
 package jwt.example.rest;
 
 import jwt.example.controller.UserService;
-import jwt.example.dataTransferObject.UserDto;
-import jwt.example.model.UserDetailsRequestModel;
-import jwt.example.model.UserDetailsResponseModel;
+import jwt.example.userDto.UserDto;
+import jwt.example.userDto.UserDetailsRequestModel;
+import jwt.example.userDto.UserDetailsResponseModel;
 import jwt.example.model.UserEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -32,7 +31,7 @@ public class UserEndpoint {
         return returnValue;
     }
 
-    @PostMapping("/users/add")
+    @PostMapping("/users")
     public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) {
         UserDto userDto = new UserDto();
         //copy requestbody into userDtoObject
@@ -47,12 +46,12 @@ public class UserEndpoint {
         return returnValue;
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/users/{id}")
     public UserEntity updateUser(@PathVariable(value="id")long id, @RequestBody UserEntity userInput) {
         return userService.updateUser(id, userInput);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/users/{id}")
     public String deleteUserById(@PathVariable(value= "id")long id) {
         userService.deleteUserById(id);
         return "You Deleted User With Id: " + id;
