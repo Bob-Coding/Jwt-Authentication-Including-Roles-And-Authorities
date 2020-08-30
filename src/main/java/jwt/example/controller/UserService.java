@@ -1,10 +1,14 @@
 package jwt.example.controller;
 
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ErrorMessages;
 import jwt.example.userDto.UserDto;
 import jwt.example.model.UserEntity;
 import jwt.example.userDto.Utils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,10 +17,11 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
-public class UserService implements UserServiceInterface{
+public class UserService implements UserServiceInterface {
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -26,17 +31,14 @@ public class UserService implements UserServiceInterface{
 
     @Override
     public UserDto createUser(UserDto user) {
-
-        if(userRepository.findByEmail(user.getEmail()) != null) throw new RuntimeException("Record already exists");
+        if (userRepository.findByEmail(user.getEmail()) != null) throw new RuntimeException("Record already exists");
         UserEntity userEntity = new UserEntity();
         BeanUtils.copyProperties(user, userEntity);
-
         String publicUserId = utils.generateUserId(25);
         userEntity.setUserId(publicUserId);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         //store created UserEntity in Database
         UserEntity storedUserDetails = userRepository.save(userEntity);
-
         UserDto returnValue = new UserDto();
         BeanUtils.copyProperties(storedUserDetails, returnValue);
         return returnValue;
@@ -62,8 +64,40 @@ public class UserService implements UserServiceInterface{
     public UserDto getUserByUserId(String userId) {
         UserDto returnValue = new UserDto();
         UserEntity userEntity = userRepository.findByUserId(userId);
-        if (userEntity == null) throw new UsernameNotFoundException(userId);
+        if (userEntity == null) throw new UsernameNotFoundException("Record not found with userId: " + userId);
         BeanUtils.copyProperties(userEntity, returnValue);
+        return returnValue;
+    }
+
+    @Override
+    public List<UserDto> getUsers(int page, int limit) {
+        List<UserDto> returnValue = new ArrayList<>();
+        //page 1 is equal to 0 to avoid confusion for the client.
+        if(page>0) page = page-1;
+        Pageable pageableRequest = PageRequest.of(page, limit);
+        Page<UserEntity> usersPage = userRepository.findAll(pageableRequest);
+        List<UserEntity> users = usersPage.getContent();
+        for(UserEntity userEntity : users) {
+            UserDto userDto = new UserDto();
+            BeanUtils.copyProperties(userEntity, userDto);
+            returnValue.add(userDto);
+        }
+        return returnValue;
+    }
+
+    @Override
+    public UserDto updateUser(String userId, UserDto userDto) {
+        UserDto returnValue = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) throw new UsernameNotFoundException(userId);
+        if (userDto.getFirstName() != null && userDto.getFirstName() != "")
+            userEntity.setFirstName(userDto.getFirstName());
+        if (userDto.getLastName() != null && userDto.getLastName() != "")
+            userEntity.setLastName(userDto.getLastName());
+
+        UserEntity updatedUser = userRepository.save(userEntity);
+        BeanUtils.copyProperties(updatedUser, returnValue);
+        System.out.println("Updating UserId: " + userId);
         return returnValue;
     }
 
@@ -72,24 +106,11 @@ public class UserService implements UserServiceInterface{
         return userRepository.findAll();
     }
 
-    public String deleteUserById(long id) {
-        System.out.println("You deleted userId: " + id);
-        userRepository.deleteById(id);
-        return "You Deleted User With Id: " + id;
-    }
-
-    public UserEntity updateUser(long id, UserEntity userInput) {
-        System.out.println("Updating UserId: "+ id);
-        UserEntity user = userRepository.findById(id).get();
-        if (userInput.getFirstName() != null && userInput.getFirstName() !="")
-            user.setFirstName(userInput.getFirstName());
-        if (userInput.getLastName() != null && userInput.getLastName() !="")
-            user.setLastName(userInput.getLastName());
-        if (userInput.getEmail() != null && userInput.getEmail() !="")
-            user.setEmail(userInput.getEmail());
-        if (userInput.getEncryptedPassword() != null && userInput.getEncryptedPassword() !="")
-            user.setEncryptedPassword(userInput.getEncryptedPassword());
-            //cant change password(for now)
-        return userRepository.save(user);
+    @Override
+    public void deleteUser(String userId) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) throw new UsernameNotFoundException(userId);
+        userRepository.delete(userEntity);
+        System.out.println("You deleted userId: " + userId);
     }
 }

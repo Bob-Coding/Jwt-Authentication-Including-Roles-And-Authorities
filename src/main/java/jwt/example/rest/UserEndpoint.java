@@ -1,16 +1,19 @@
 package jwt.example.rest;
 
 import jwt.example.controller.UserService;
+import jwt.example.userDto.OperationStatusResponseModel;
 import jwt.example.userDto.UserDto;
 import jwt.example.userDto.UserDetailsRequestModel;
 import jwt.example.userDto.UserDetailsResponseModel;
 import jwt.example.model.UserEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RestController
@@ -20,8 +23,17 @@ public class UserEndpoint {
     UserService userService;
 
     @GetMapping("/users")
-    public Iterable <UserEntity> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserDetailsResponseModel> getUsers(@RequestParam(value="page", defaultValue = "1") int page,
+                                                   @RequestParam(value="limit", defaultValue = "25") int limit) {
+        List<UserDetailsResponseModel> returnValue = new ArrayList<>();
+        List<UserDto> users = userService.getUsers(page, limit);
+
+        for(UserDto userDto : users) {
+            UserDetailsResponseModel userModel = new UserDetailsResponseModel();
+            BeanUtils.copyProperties(userDto, userModel);
+            returnValue.add(userModel);
+        }
+        return returnValue;
     }
 
     @GetMapping("/users/{id}")
@@ -47,14 +59,22 @@ public class UserEndpoint {
         return returnValue;
     }
 
-    @PutMapping("/users/{id}")
-    public UserEntity updateUser(@PathVariable(value="id")long id, @RequestBody UserEntity userInput) {
-        return userService.updateUser(id, userInput);
+    @PutMapping("/users/{userId}")
+    public UserDetailsResponseModel updateGebruiker(@PathVariable String userId, @RequestBody UserDetailsRequestModel userDetailsRequest) {
+        UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(userDetailsRequest, userDto);
+        UserDto updatedUser = userService.updateUser(userId, userDto);
+        BeanUtils.copyProperties(updatedUser, returnValue);
+        return returnValue;
     }
 
-    @DeleteMapping("/users/{id}")
-    public String deleteUserById(@PathVariable(value= "id")long id) {
-        userService.deleteUserById(id);
-        return "You Deleted User With Id: " + id;
+    @DeleteMapping("/users/{userId}")
+    public OperationStatusResponseModel deleteUserById(@PathVariable(value= "userId")String userId) {
+        OperationStatusResponseModel returnValue = new OperationStatusResponseModel();
+        returnValue.setOperationName("DELETE");
+        userService.deleteUser(userId);
+        returnValue.setOperationResult("SUCCESS");
+        return returnValue;
     }
 }
