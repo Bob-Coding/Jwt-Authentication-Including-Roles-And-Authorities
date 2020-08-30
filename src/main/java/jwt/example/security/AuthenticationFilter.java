@@ -6,15 +6,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jwt.example.ExampleApplicationContext;
 import jwt.example.controller.UserService;
 import jwt.example.userDto.UserDto;
-import jwt.example.userDto.UserLoginRequestModel;
+import jwt.example.userDto.request.UserLoginRequestModel;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

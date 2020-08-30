@@ -1,4 +1,4 @@
-package jwt.example.userDto;
+package jwt.example.userDto.request;
 
 public class UserLoginRequestModel {
     private String email;

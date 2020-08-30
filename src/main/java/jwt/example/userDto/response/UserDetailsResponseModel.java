@@ -1,10 +1,13 @@
-package jwt.example.userDto;
+package jwt.example.userDto.response;
+
+import java.util.List;
 
 public class UserDetailsResponseModel {
     private String userId;
     private String firstName;
     private String lastName;
     private String email;
+    private List<AddressResponseModel> addresses;
 
     public String getUserId() {
         return userId;
@@ -36,5 +39,13 @@ public class UserDetailsResponseModel {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<AddressResponseModel> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressResponseModel> addresses) {
+        this.addresses = addresses;
     }
 }

@@ -1,9 +1,12 @@
 package jwt.example.controller;
 
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ErrorMessages;
+import jwt.example.userDto.AddressDto;
 import jwt.example.userDto.UserDto;
 import jwt.example.model.UserEntity;
 import jwt.example.userDto.Utils;
+import jwt.example.userDto.response.UserDetailsResponseModel;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,15 +35,22 @@ public class UserService implements UserServiceInterface {
     @Override
     public UserDto createUser(UserDto user) {
         if (userRepository.findByEmail(user.getEmail()) != null) throw new RuntimeException("Record already exists");
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        for(int i=0; i<user.getAddresses().size(); i++) {
+            AddressDto address = user.getAddresses().get(i);
+            address.setUserDetails(user);
+            address.setAddressId(utils.generateAddressId(25));
+            user.getAddresses().set(i, address);
+        }
+//        BeanUtils.copyProperties(user, userEntity);
+        ModelMapper modelMapper = new ModelMapper();
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
         String publicUserId = utils.generateUserId(25);
         userEntity.setUserId(publicUserId);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         //store created UserEntity in Database
         UserEntity storedUserDetails = userRepository.save(userEntity);
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
+//        BeanUtils.copyProperties(storedUserDetails, returnValue);
+        UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
         return returnValue;
     }
 

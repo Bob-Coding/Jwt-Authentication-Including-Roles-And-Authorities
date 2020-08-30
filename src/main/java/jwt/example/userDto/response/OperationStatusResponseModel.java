@@ -1,4 +1,4 @@
-package jwt.example.userDto;
+package jwt.example.userDto.response;
 
 public class OperationStatusResponseModel {
     private String operationName;
