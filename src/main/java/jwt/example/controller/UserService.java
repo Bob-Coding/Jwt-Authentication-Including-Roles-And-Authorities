@@ -41,7 +41,7 @@ public class UserService implements UserServiceInterface {
             address.setAddressId(utils.generateAddressId(25));
             user.getAddresses().set(i, address);
         }
-//        BeanUtils.copyProperties(user, userEntity);
+//        BeanUtils.copyProperties(user, userEntity);  modelmapper is better for deep cloning
         ModelMapper modelMapper = new ModelMapper();
         UserEntity userEntity = modelMapper.map(user, UserEntity.class);
         String publicUserId = utils.generateUserId(25);

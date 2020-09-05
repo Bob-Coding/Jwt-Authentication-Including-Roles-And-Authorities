@@ -16,20 +16,20 @@ public class AddressEntity implements Serializable {
     private String addressId;
     @Column(length = 25, nullable = false)
     private String country;
-    @Column(length = 25, nullable = false)
+    @Column(length = 25, nullable = true)
     private String city;
-    @Column(length = 50, nullable = false)
+    @Column(length = 50, nullable = true)
     private String streetName;
-    @Column(length = 10, nullable = false)
+    @Column(length = 10, nullable = true)
     private String postalCode;
     @Column(length = 25)
     private long phoneNumber;
-    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = true)
     private String type;
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="users_id")
     private UserEntity userDetails;
 
     public long getId() {

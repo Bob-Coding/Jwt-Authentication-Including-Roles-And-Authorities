@@ -1,16 +1,22 @@
 package jwt.example.rest;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
+import jwt.example.controller.AddressService;
 import jwt.example.controller.UserService;
+import jwt.example.userDto.AddressDto;
+import jwt.example.userDto.response.AddressResponseModel;
 import jwt.example.userDto.response.OperationStatusResponseModel;
 import jwt.example.userDto.UserDto;
 import jwt.example.userDto.request.UserDetailsRequestModel;
 import jwt.example.userDto.response.UserDetailsResponseModel;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +26,8 @@ import java.util.List;
 public class UserEndpoint {
     @Autowired
     UserService userService;
+    @Autowired
+    AddressService addressService;
 
     @GetMapping("/users")
     public List<UserDetailsResponseModel> getUsers(@RequestParam(value="page", defaultValue = "1") int page,
@@ -35,12 +43,30 @@ public class UserEndpoint {
         return returnValue;
     }
 
-    @GetMapping("/users/{id}")
-    public UserDetailsResponseModel getUserByUserId(@PathVariable(value = "id")String id) {
+    @GetMapping("/users/{userId}")
+    public UserDetailsResponseModel getUserByUserId(@PathVariable(value = "userId")String userId) {
         UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
-        UserDto userDto = userService.getUserByUserId(id);
+        UserDto userDto = userService.getUserByUserId(userId);
         BeanUtils.copyProperties(userDto, returnValue);
         return returnValue;
+    }
+
+    @GetMapping("/users/{userId}/addresses")
+    public List<AddressResponseModel> getUserAddresses(@PathVariable(value = "userId")String userId) {
+        List<AddressResponseModel> returnValue = new ArrayList<>();
+        List<AddressDto> addressesDto = addressService.getAddresses(userId);
+        if(addressesDto != null && !addressesDto.isEmpty()) {
+            Type listType = new TypeToken<List<AddressResponseModel>>() {}.getType();
+            returnValue = new ModelMapper().map(addressesDto, listType);
+        }
+        return returnValue;
+    }
+
+    @GetMapping("/users/{userId}/addresses/{addressId}")
+    public AddressResponseModel getUserAddress(@PathVariable(value = "addressId")String addressId) {
+        AddressDto addressDto = addressService.getAddress(addressId);
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(addressDto, AddressResponseModel.class);
     }
 
     //Example for taking xml/json as a request(consumes) and to respond in xml or json, first value is default( in this example json )
