@@ -9,21 +9,29 @@ import java.io.Serializable;
 @Entity(name = "addresses")
 public class AddressEntity implements Serializable {
     private static final long serialVersionUID = 7808438972L;
+
     @Id
     @GeneratedValue
     private long id;
+
     @Column(length = 30, nullable = false)
     private String addressId;
+
     @Column(length = 25, nullable = false)
     private String country;
+
     @Column(length = 25, nullable = true)
     private String city;
+
     @Column(length = 50, nullable = true)
     private String streetName;
+
     @Column(length = 10, nullable = true)
     private String postalCode;
+
     @Column(length = 25)
     private long phoneNumber;
+
     @Column(length = 20, nullable = true)
     private String type;
 
