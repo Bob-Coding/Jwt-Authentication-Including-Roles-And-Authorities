@@ -1,10 +1,8 @@
 package jwt.example.rest;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import jwt.example.controller.AddressService;
 import jwt.example.controller.UserService;
 import jwt.example.userDto.AddressDto;
-import jwt.example.userDto.response.AddressResponseModel;
 import jwt.example.userDto.response.OperationStatusResponseModel;
 import jwt.example.userDto.UserDto;
 import jwt.example.userDto.request.UserDetailsRequestModel;
@@ -20,7 +18,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api")
 public class UserEndpoint {
@@ -34,12 +31,13 @@ public class UserEndpoint {
                                                    @RequestParam(value="limit", defaultValue = "25") int limit) {
         List<UserDetailsResponseModel> returnValue = new ArrayList<>();
         List<UserDto> users = userService.getUsers(page, limit);
-
-        for(UserDto userDto : users) {
-            UserDetailsResponseModel userModel = new UserDetailsResponseModel();
-            BeanUtils.copyProperties(userDto, userModel);
-            returnValue.add(userModel);
-        }
+        Type listType = new TypeToken<List<UserDetailsResponseModel>>() {}.getType();
+        returnValue = new ModelMapper().map(users, listType);
+    //        for(UserDto userDto : users) {
+    //            UserDetailsResponseModel userModel = new UserDetailsResponseModel();
+    //            BeanUtils.copyProperties(userDto, userModel);
+    //            returnValue.add(userModel);
+    //        }
         return returnValue;
     }
 
@@ -47,26 +45,9 @@ public class UserEndpoint {
     public UserDetailsResponseModel getUserByUserId(@PathVariable(value = "userId")String userId) {
         UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
         UserDto userDto = userService.getUserByUserId(userId);
-        BeanUtils.copyProperties(userDto, returnValue);
-        return returnValue;
-    }
-
-    @GetMapping("/users/{userId}/addresses")
-    public List<AddressResponseModel> getUserAddresses(@PathVariable(value = "userId")String userId) {
-        List<AddressResponseModel> returnValue = new ArrayList<>();
-        List<AddressDto> addressesDto = addressService.getAddresses(userId);
-        if(addressesDto != null && !addressesDto.isEmpty()) {
-            Type listType = new TypeToken<List<AddressResponseModel>>() {}.getType();
-            returnValue = new ModelMapper().map(addressesDto, listType);
-        }
-        return returnValue;
-    }
-
-    @GetMapping("/users/{userId}/addresses/{addressId}")
-    public AddressResponseModel getUserAddress(@PathVariable(value = "addressId")String addressId) {
-        AddressDto addressDto = addressService.getAddress(addressId);
         ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(addressDto, AddressResponseModel.class);
+        returnValue = modelMapper.map(userDto, UserDetailsResponseModel.class);
+        return returnValue;
     }
 
     //Example for taking xml/json as a request(consumes) and to respond in xml or json, first value is default( in this example json )
@@ -76,7 +57,7 @@ public class UserEndpoint {
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) {
         UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
-        //        Other way of copying properties with modelmapper(mvn dependency added)
+        //        Other way of copying properties with modelmapper(mvn dependency added) to make deep clones
         //        UserDto userDto = new UserDto();
         //        BeanUtils.copyProperties(userDetails , userDto);
         ModelMapper modelMapper = new ModelMapper();
@@ -91,9 +72,9 @@ public class UserEndpoint {
     public UserDetailsResponseModel updateGebruiker(@PathVariable String userId, @RequestBody UserDetailsRequestModel userDetailsRequest) {
         UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
         UserDto userDto = new UserDto();
-        BeanUtils.copyProperties(userDetailsRequest, userDto);
+        userDto = new ModelMapper().map(userDetailsRequest, UserDto.class);
         UserDto updatedUser = userService.updateUser(userId, userDto);
-        BeanUtils.copyProperties(updatedUser, returnValue);
+        returnValue= new ModelMapper().map(updatedUser, UserDetailsResponseModel.class);
         return returnValue;
     }
 
