@@ -1,6 +1,8 @@
 package jwt.example.controller;
 
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ErrorMessages;
+import jwt.example.model.RoleEntity;
+import jwt.example.security.UserPrincipal;
 import jwt.example.userDto.AddressDto;
 import jwt.example.userDto.UserDto;
 import jwt.example.model.UserEntity;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -31,6 +35,8 @@ public class UserService implements UserServiceInterface {
     Utils utils;
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    RoleRepository roleRepository;
 
     @Override
     public UserDto createUser(UserDto user) {
@@ -47,7 +53,15 @@ public class UserService implements UserServiceInterface {
         String publicUserId = utils.generateUserId(25);
         userEntity.setUserId(publicUserId);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        //store created UserEntity in Database
+//        set roles
+        Collection<RoleEntity> roleEntities = new HashSet<>();
+        for(String role: user.getRoles()) {
+            RoleEntity roleEntity = roleRepository.findByName(role);
+            if(roleEntity != null) {
+                roleEntities.add(roleEntity);
+            }
+        }
+        userEntity.setRoles(roleEntities);
         UserEntity storedUserDetails = userRepository.save(userEntity);
 //        BeanUtils.copyProperties(storedUserDetails, returnValue);
         UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
@@ -67,7 +81,12 @@ public class UserService implements UserServiceInterface {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(email);
         if (userEntity == null) throw new UsernameNotFoundException(email);
-        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+//        User constructor asks for a list of granted authorities.
+//        New class UserPrincipal is made to cover the logic for creating a list of granted authorities out of roles and authorities
+//        return new User(userEntity.getEmail(),
+//        userEntity.getEncryptedPassword(),
+//        new ArrayList<>());
+        return new UserPrincipal(userEntity);
     }
 
     @Override

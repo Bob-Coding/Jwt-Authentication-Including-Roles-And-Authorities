@@ -1,5 +1,7 @@
 package jwt.example.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
@@ -18,6 +20,7 @@ public class RoleEntity implements Serializable {
     @Column(nullable = false, length = 25)
     String name;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "roles")
     private Collection<UserEntity> users;
 
@@ -26,6 +29,13 @@ public class RoleEntity implements Serializable {
             joinColumns = @JoinColumn(name = "roles_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "authorities_id", referencedColumnName = "id"))
     private Collection<AuthorityEntity> authorities;
+
+    public RoleEntity() {
+    }
+
+    public RoleEntity(String name) {
+        this.name = name;
+    }
 
     public long getId() {
         return id;

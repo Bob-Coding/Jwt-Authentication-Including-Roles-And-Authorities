@@ -1,6 +1,7 @@
 package jwt.example.userDto;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 public class UserDto implements Serializable {
@@ -15,6 +16,7 @@ public class UserDto implements Serializable {
     private String emailVerificationToken;
     private boolean emailVerificationStatus;
     private List<AddressDto> addresses;
+    private Collection<String> roles;
 
     public long getId() {
         return id;
@@ -94,5 +96,13 @@ public class UserDto implements Serializable {
 
     public void setAddresses(List<AddressDto> addresses) {
         this.addresses = addresses;
+    }
+
+    public Collection<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<String> roles) {
+        this.roles = roles;
     }
 }

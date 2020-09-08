@@ -1,5 +1,7 @@
 package jwt.example.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
@@ -16,8 +18,16 @@ public class AuthorityEntity implements Serializable {
     @Column(nullable = false, length = 25)
     String name;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "authorities")
     private Collection<RoleEntity> roles;
+
+    public AuthorityEntity() {
+    }
+
+    public AuthorityEntity(String name) {
+        this.name = name;
+    }
 
     public long getId() {
         return id;

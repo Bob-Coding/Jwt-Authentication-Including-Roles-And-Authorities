@@ -46,7 +46,7 @@ public class UserEntity implements Serializable {
 
     public UserEntity() {}
 
-    public UserEntity(String userId, String firstName, String lastName, String email, String encryptedPassword, String emailVerificationToken, boolean emailVerificationStatus, List<AddressEntity> addresses) {
+    public UserEntity(String userId, String firstName, String lastName, String email, String encryptedPassword, String emailVerificationToken, boolean emailVerificationStatus, List<AddressEntity> addresses, List<RoleEntity> roles) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -55,6 +55,7 @@ public class UserEntity implements Serializable {
         this.emailVerificationToken = emailVerificationToken;
         this.emailVerificationStatus = emailVerificationStatus;
         this.addresses = addresses;
+        this.roles = roles;
     }
 
     public long getId() {
@@ -127,5 +128,13 @@ public class UserEntity implements Serializable {
 
     public void setAddresses(List<AddressEntity> addresses) {
         this.addresses = addresses;
+    }
+
+    public Collection<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<RoleEntity> roles) {
+        this.roles = roles;
     }
 }
