@@ -2,6 +2,8 @@ package jwt.example.rest;
 
 import jwt.example.controller.AddressService;
 import jwt.example.controller.UserService;
+import jwt.example.exceptionHandling.ErrorMessages;
+import jwt.example.exceptionHandling.UserServiceException;
 import jwt.example.model.UserEntity;
 import jwt.example.userDto.AddressDto;
 import jwt.example.userDto.Roles;
@@ -63,8 +65,10 @@ public class UserEndpoint {
     @PostMapping(value = "/users",
             consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) {
-        UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
+    public UserDetailsResponseModel createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
+            UserDetailsResponseModel returnValue = new UserDetailsResponseModel();
+            if(userDetails.getFirstName().isEmpty() || userDetails.getLastName().isEmpty() || userDetails.getEmail().isEmpty() || userDetails.getPassword().isEmpty() || userDetails.getAddresses() == null)
+            throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
         //        Other way of copying properties with modelmapper(mvn dependency added) to make deep clones
         //        UserDto userDto = new UserDto();
         //        BeanUtils.copyProperties(userDetails , userDto);
