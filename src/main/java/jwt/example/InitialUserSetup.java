@@ -49,10 +49,10 @@ public class InitialUserSetup {
         RoleEntity roleUser = createRole(Roles.ROLE_USER.name(), Arrays.asList(readUserAuthority,updateUserAuthority, createUserAuthority));
 
         //create userentity with adminrole
-        if (userRepository.findByEmail("bobgunsing@test.nl") == null) {
+        if (userRepository.findByEmail("admin@test.nl") == null) {
             UserEntity adminUser = new UserEntity();
-            adminUser.setFirstName("Bob");
-            adminUser.setLastName("Gunsing");
+            adminUser.setFirstName("Admin");
+            adminUser.setLastName("InitialAccount");
             adminUser.setEmail("admin@test.nl");
             adminUser.setRoles(Arrays.asList(roleAdmin));
             adminUser.setUserId(utils.generateUserId(20));
