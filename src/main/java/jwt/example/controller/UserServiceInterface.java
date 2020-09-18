@@ -3,7 +3,6 @@ package jwt.example.controller;
 import jwt.example.userDto.UserDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import javax.jws.soap.SOAPBinding;
 import java.util.List;
 
 public interface UserServiceInterface extends UserDetailsService {
